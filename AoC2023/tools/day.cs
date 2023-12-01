@@ -21,4 +21,11 @@ public abstract class Day
         StreamReader reader = new StreamReader(file.FullName);
         return reader;
     }
+
+    protected StreamReader LoadExample2Data()
+    {
+        FileInfo file = new FileInfo(String.Format("days/{0}/exampledata2.txt", Directory));
+        StreamReader reader = new StreamReader(file.FullName);
+        return reader;
+    }
 }
