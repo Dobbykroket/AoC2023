@@ -112,22 +112,26 @@ public class Day5: Day
             currentmap.Add(new map(ints[0], ints[1], ints[2]));
         }
 
-        foreach (long seed in seeds)
+        for (int i = 0; i < seeds.Count; i += 2)
         {
-            long soil = checkmap(soilmap, seed);
-            long fertilizer = checkmap(fertilizermap, soil);
-            long water = checkmap(watermap, fertilizer);
-            long light = checkmap(lightmap, water);
-            long temperature = checkmap(temperaturemap, light);
-            long humidity = checkmap(humiditymap, temperature);
-            long location = checkmap(locationmap, humidity);
-
-            if (lowestlocation is null || location < lowestlocation)
+            for (long seed = seeds[i]; seed < seeds[i] + seeds[i + 1]; seed++)
             {
-                lowestlocation = location;
-            }
+                long soil = checkmap(soilmap, seed);
+                long fertilizer = checkmap(fertilizermap, soil);
+                long water = checkmap(watermap, fertilizer);
+                long light = checkmap(lightmap, water);
+                long temperature = checkmap(temperaturemap, light);
+                long humidity = checkmap(humiditymap, temperature);
+                long location = checkmap(locationmap, humidity);
 
+                if (lowestlocation is null || location < lowestlocation)
+                {
+                    lowestlocation = location;
+                }
+
+            }
         }
+
         Console.WriteLine(lowestlocation);
     }
 }
