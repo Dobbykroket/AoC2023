@@ -11,26 +11,18 @@ public class Day6: Day
     public override void Run()
     {
         StreamReader data = LoadData();
-        int product = 1;
-        int[] times = data.ReadLine().Split(":")[1].Split(" ", StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToArray();
-        int[] records = data.ReadLine().Split(":")[1].Split(" ", StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToArray();
-        int[] results = new int[times.Length];
-        for (int i = 0; i < times.Length; i++)
+        long product = 1;
+        long times = long.Parse(data.ReadLine().Split(":")[1].Replace(" ", string.Empty));
+        long records = long.Parse(data.ReadLine().Split(":")[1].Replace(" ", string.Empty));
+        long results = 0;
+        for (long j = 0; j < (times * 0.5); j++)
         {
-            for (int j = 0; j < (times[i] * 0.5); j++)
+            if (j * (times - j) > records)
             {
-                if (j * (times[i] - j) > records[i])
-                {
-                    results[i] = (times[i] - (2 * j) + 1);
-                    break;
-                }
+                results = (times - (2 * j) + 1);
+                break;
             }
         }
-
-        foreach (int result in results)
-        {
-            product *= result;
-        }
-        Console.WriteLine(product);
+        Console.WriteLine(results);
     }
 }
