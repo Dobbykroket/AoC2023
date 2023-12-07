@@ -27,7 +27,7 @@ public class Day7: Day
             }
             case 'J':
             {
-                return 11;
+                return 1;
             }
             case 'Q':
             {
@@ -54,8 +54,14 @@ public class Day7: Day
         Array.Sort(hand);
         List<int> cardCounts = new List<int>();
         int lastcheckedcard = -1;
+        int jokercount = 0;
         for (int i = 0; i < hand.Length; i++)
         {
+            if (hand[i] == 1)
+            {
+                jokercount++;
+                continue;
+            }
             if (hand[i] == lastcheckedcard)
             {
                 cardCounts[^1] += 1;
@@ -68,22 +74,22 @@ public class Day7: Day
 
         cardCounts = cardCounts.OrderByDescending(i => i).ToList();
 
-        if (cardCounts[0] == 5)
+        if ((cardCounts.Count == 0 && jokercount == 5) || cardCounts[0] + jokercount == 5)
         {
             return 0;
         }
 
-        if (cardCounts[0] == 4)
+        if (cardCounts[0] + jokercount == 4)
         {
             return 1;
         }
 
-        if (cardCounts[0] == 3 && cardCounts[1] == 2)
+        if (cardCounts[0] + jokercount == 3 && cardCounts[1] == 2)
         {
             return 2;
         }
 
-        if (cardCounts[0] == 3)
+        if (cardCounts[0] + jokercount == 3)
         {
             return 3;
         }
@@ -93,7 +99,7 @@ public class Day7: Day
             return 4;
         }
 
-        if (cardCounts[0] == 2)
+        if (cardCounts[0] + jokercount == 2)
         {
             return 5;
         }
