@@ -21,6 +21,22 @@ public class Day9: Day
         return results;
     }
 
+    public int[] AddFirstValue(int[] nums)
+    {
+        List<int> vals = new List<int>();
+        vals.AddRange(nums);
+        if (nums.All(num => num == 0))
+        {
+            vals.Insert(0, 0);
+            return vals.ToArray();
+        }
+
+        int[] diffs = AddFirstValue(FindDifferences(nums));
+
+        vals.Insert(0, vals[0] - diffs[0]);
+        return vals.ToArray();
+    }
+
     public int[] AddNextValue(int[] nums)
     {
         List<int> vals = new List<int>();
@@ -46,7 +62,7 @@ public class Day9: Day
         while ((line = data.ReadLine()) != null)
         {
             int[] nums = line.Split(" ").Select(s => int.Parse(s)).ToArray();
-            int extrapolated = AddNextValue(nums)[^1];
+            int extrapolated = AddFirstValue(nums)[0];
 
             Console.WriteLine(extrapolated);
             sum += extrapolated;
