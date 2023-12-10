@@ -1,0 +1,11 @@
+﻿/.idea
+/AoC2023/obj
+/AoC2023/bin
+/AoC2023/AoC2023.csproj.DotSettings
+/AoCTests/bin
+/AoCTests/obj
+AoC2023.sln.DotSettings.user
+**/data.txt
+**/exampledata.txt
+**/exampledata2.txt
+**/exampledata3.txt
