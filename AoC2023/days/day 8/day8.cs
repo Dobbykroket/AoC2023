@@ -8,35 +8,26 @@ public class Day8: Day
     {
         this.Directory = "day 8";
     }
-    public override void Run()
-    {
-        StreamReader data = LoadData();
-        string? line;
-
-        int stepcount = 0;
-
-        string instructions = data.ReadLine();
-        data.ReadLine(); // clear blank line
         
-        Dictionary<string, string[]> nodes = new Dictionary<string, string[]>();
+    private static Dictionary<string, string[]> nodes = new Dictionary<string, string[]>();
 
-        while ((line = data.ReadLine()) != null)
+    private class NodeRoute
+    {
+        public string currentnode;
+
+        public NodeRoute(string startnode)
         {
-            string[] input = line.Split("=", StringSplitOptions.TrimEntries);
-            nodes.Add(input[0], input[1].Substring(1, input[1].Length - 2).Split(",", StringSplitOptions.TrimEntries));
+            currentnode = startnode;
         }
 
-        int index = 0;
-        string currentnode = "AAA";
-
-        while (!currentnode.Equals("ZZZ"))
+        private bool OnFinishingSpot()
         {
-            stepcount++;
-            index %= instructions.Length;
+            return (currentnode[^1].Equals('Z'));
+        }
 
-            char currentinstruction = instructions[index];
-            
-            switch (currentinstruction)
+        public bool NextStep(char instruction)
+        {
+            switch (instruction)
             {
                 case 'L':
                 {
@@ -50,9 +41,72 @@ public class Day8: Day
                 }
             }
 
-            index++;
+            return OnFinishingSpot();
+        }
+    }
+    
+    public override void Run()
+    {
+        StreamReader data = LoadData();
+        string? line;
+
+        string instructions = data.ReadLine()!;
+        data.ReadLine(); // clear blank line
+
+        while ((line = data.ReadLine()) != null)
+        {
+            string[] input = line.Split("=", StringSplitOptions.TrimEntries);
+            nodes.Add(input[0], input[1].Substring(1, input[1].Length - 2).Split(",", StringSplitOptions.TrimEntries));
+        }
+
+        List<NodeRoute> routes = new List<NodeRoute>();
+        foreach (string key in nodes.Keys)
+        {
+            if (key[^1].Equals('A'))
+            {
+                routes.Add(new NodeRoute(key));
+            }
+        }
+
+        List<List<(string nodes, int steps)>> routeEndPoints = new List<List<(string nodes, int steps)>>();
+        foreach (NodeRoute route in routes)
+        {
+            int steps = 1;
+            (string node, int steps)? firstEndNode = null;
+            List<(string node, int steps)> endNodes = new List<(string, int)>();
+
+            while (true)
+            {
+                bool endNode = route.NextStep(instructions[(steps - 1) % instructions.Length]);
+                if (endNode)
+                {
+                    endNodes.Add((route.currentnode, steps));
+                    if (firstEndNode is null)
+                    {
+                        firstEndNode = (route.currentnode, steps);
+                    }
+                    else
+                    {
+                        if (route.currentnode.Equals(firstEndNode.Value.node) && steps % instructions.Length ==
+                            firstEndNode.Value.steps % instructions.Length)
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                steps++;
+            }
+            routeEndPoints.Add(endNodes);
+        }
+
+        List<int> cycleLengths = new List<int>();
+        foreach (List<(string node, int steps)> endpoints in routeEndPoints)
+        {
+            cycleLengths.Add(endpoints[^1].steps - endpoints[0].steps);
         }
         
-        Console.WriteLine(stepcount);
+        Console.WriteLine(Utils.LCM(cycleLengths.ToArray()));
     }
 }
+
