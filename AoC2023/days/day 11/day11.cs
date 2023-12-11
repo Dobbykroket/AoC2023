@@ -20,6 +20,8 @@ public class Day11: Day
     private class GridSpace
     {
         public bool hasStar = false;
+        public bool horizontalEmpty = false;
+        public bool verticalEmpty = false;
 
         public GridSpace(char c)
         {
@@ -33,6 +35,7 @@ public class Day11: Day
     }
     public override void Run()
     {
+        int expansionfactor = 1000000;
         List<List<GridSpace>> grid = new List<List<GridSpace>>();
         StreamReader data = LoadData();
         string? line;
@@ -54,7 +57,7 @@ public class Day11: Day
             {
                 foreach (List<GridSpace> gridline in grid)
                 {
-                    gridline.Insert(i, new GridSpace('.'));
+                    gridline[i].horizontalEmpty = true;
                 }
             }
 
@@ -64,7 +67,10 @@ public class Day11: Day
         {
             if (grid[i].All(gridspace => !gridspace.hasStar))
             {
-                grid.Insert(i, grid[i].ToList() );
+                foreach (GridSpace space in grid[i])
+                {
+                    space.verticalEmpty = true;
+                }
             }
         }
 
@@ -82,17 +88,61 @@ public class Day11: Day
         }
 
         int totaldistance = 0;
+        int emptycrossings = 0;
 
         for (int i = 0; i < stars.Count; i++)
         {
             for (int j = i + 1; j < stars.Count; j++)
             {
-                int hordistance = Math.Abs(stars[i].x - stars[j].x);
-                int vertdistance = Math.Abs(stars[i].y - stars[j].y);
+                int hordistance = 0;
+                int vertdistance = 0;
+                int startX, endX;
+                int startY, endY;
+                if (stars[i].x >= stars[j].x)
+                {
+                    endX = stars[i].x;
+                    startX = stars[j].x;
+                }
+                else
+                {
+                    endX = stars[j].x;
+                    startX = stars[i].x;
+                }
+                if (stars[i].y >= stars[j].y)
+                {
+                    endY = stars[i].y;
+                    startY = stars[j].y;
+                }
+                else
+                {
+                    endY = stars[j].y;
+                    startY = stars[i].y;
+                }
+
+                hordistance = endX - startX;
+                vertdistance = endY - startY;
                 totaldistance += hordistance + vertdistance;
+
+                for (int x = startX + 1; x <= endX; x++)
+                {
+                    if (grid[startY][x].horizontalEmpty)
+                    {
+                        emptycrossings++;
+                    }
+                }
+
+                for (int y = startY + 1; y <= endY; y++)
+                {
+                    if (grid[y][endX].verticalEmpty)
+                    {
+                        emptycrossings++;
+                    }
+                }
             }
         }
         
+        Console.WriteLine(emptycrossings);
         Console.WriteLine(totaldistance);
+        Console.WriteLine((long) totaldistance + ((long) emptycrossings) * (expansionfactor - 1));
     }
 }
