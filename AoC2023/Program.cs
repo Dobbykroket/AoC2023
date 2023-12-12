@@ -1,6 +1,6 @@
-﻿using AoC2023.days.day_11;
+﻿using AoC2023.days.day_12;
 using AoC2023.tools;
 
-Day currentDay = new Day11();
+Day currentDay = new Day12();
 
 currentDay.TimedRun();
