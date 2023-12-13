@@ -43,6 +43,98 @@ public class Day13: Day
 
         return true;
     }
+
+    private int GridIter(List<List<char>> grid)
+    {
+        int originalvalue = 0;
+                
+        // find horizontal mirror
+        for (int it = 0; it < grid.Count - 1; it++)
+        {
+            if (grid[it].SequenceEqual(grid[it + 1]))
+            {
+                if (HorizontalMirror(grid, it))
+                {
+                    originalvalue = (100 * (it + 1));
+                }
+            }
+        }
+            
+        // find vertical mirror
+        for (int it = 0; it < grid[0].Count - 1; it++)
+        {
+            if (grid.Select(l => l[it]).ToList().SequenceEqual(grid.Select(l => l[it + 1]).ToList()))
+            {
+                if (VerticalMirror(grid, it))
+                {
+                    originalvalue = it + 1;
+                }
+            }
+        }
+        
+        for(int i = 0; i < grid.Count; i++)
+        {
+            for (int j = 0; j < grid[i].Count; j++)
+            {
+                char original = grid[i][j];
+                grid[i][j] = FlipChar(original);
+                
+                // find horizontal mirror
+                for (int it = 0; it < grid.Count - 1; it++)
+                {
+                    if (grid[it].SequenceEqual(grid[it + 1]))
+                    {
+                        if (HorizontalMirror(grid, it))
+                        {
+                            if (100 * (it + 1) != originalvalue)
+                            {
+                                return (100 * (it + 1));
+                            }
+                        }
+                    }
+                }
+            
+                // find vertical mirror
+                for (int it = 0; it < grid[0].Count - 1; it++)
+                {
+                    if (grid.Select(l => l[it]).ToList().SequenceEqual(grid.Select(l => l[it + 1]).ToList()))
+                    {
+                        if (VerticalMirror(grid, it))
+                        {
+                            if ((it + 1) != originalvalue)
+                            {
+                                return it + 1;
+                            }
+                        }
+                    }
+                }
+
+                grid[i][j] = original;
+            }
+        }
+
+        return 0;
+    }
+    
+    private char FlipChar(char c)
+    {
+        switch (c)
+        {
+            case '.':
+            {
+                return '#';
+            }
+            case '#':
+            {
+                return '.';
+            }
+            default:
+            {
+                return c;
+            }
+        }
+    }
+    
     public override void Run()
     {
         int result = 0;
@@ -64,29 +156,7 @@ public class Day13: Day
 
         foreach (List<List<char>> grid in gridList)
         {
-            // find horizontal mirror
-            for (int i = 0; i < grid.Count - 1; i++)
-            {
-                if (grid[i].SequenceEqual(grid[i + 1]))
-                {
-                    if (HorizontalMirror(grid, i))
-                    {
-                        result += (100 * (i + 1));
-                    }
-                }
-            }
-            
-            // find vertical mirror
-            for (int i = 0; i < grid[0].Count - 1; i++)
-            {
-                if (grid.Select(l => l[i]).ToList().SequenceEqual(grid.Select(l => l[i + 1]).ToList()))
-                {
-                    if (VerticalMirror(grid, i))
-                    {
-                        result += i + 1;
-                    }
-                }
-            }
+            result += GridIter(grid);
         }
 
         Console.WriteLine(result);
