@@ -1,4 +1,5 @@
-﻿using AoC2023.tools;
+﻿using System.Text;
+using AoC2023.tools;
 
 namespace AoC2023.days.day_14;
 
@@ -32,6 +33,7 @@ public class Day14: Day
 
     private class Grid
     {
+        public int swapcount = 0;
         public List<GridSpace[]> grid = new List<GridSpace[]>();
 
         public GridSpace? getSpace(Coordinate coordinate)
@@ -55,7 +57,6 @@ public class Day14: Day
             switch (cardinal)
             {
                 case Cardinal.North:
-                {
                     for (int y = 0; y < grid.Count; y++)
                     {
                         for (int x = 0; x < grid[0].Length; x++)
@@ -64,9 +65,8 @@ public class Day14: Day
                         }
                     }
                     break;
-                }
                 case Cardinal.East:
-                    for (int x = grid[0].Length; x >= 0; x++)
+                    for (int x = grid[0].Length - 1; x >= 0; x--)
                     {
                         for (int y = 0; y < grid.Count; y++)
                         {
@@ -99,6 +99,8 @@ public class Day14: Day
 
         public void SwapGridSpaces(GridSpace space1, GridSpace space2)
         {
+            swapcount++;
+            
             int space1x = space1.Coordinate.x;
             int space1y = space1.Coordinate.y;
             int space2x = space2.Coordinate.x;
@@ -109,6 +111,39 @@ public class Day14: Day
 
             space1.Coordinate = new Coordinate(space2x, space2y);
             space2.Coordinate = new Coordinate(space1x, space1y);
+        }
+
+        public new string ToString()
+        {
+            StringBuilder builder = new StringBuilder();
+            foreach (GridSpace[] gridline in grid)
+            {
+                foreach (GridSpace space in gridline)
+                {
+                    switch (space.Type)
+                    {
+                        case SpaceType.Round:
+                        {
+                            builder.Append("O");
+                            break;
+                        }
+                        case SpaceType.Empty:
+                        {
+                            builder.Append(".");
+                            break;
+                        }
+                        case SpaceType.Cube:
+                        {
+                            builder.Append("#");
+                            break;
+                        }
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                }
+            }
+
+            return builder.ToString();
         }
     }
 
@@ -213,7 +248,40 @@ public class Day14: Day
             grid.grid.Add(gridLine.ToArray());
             initY++;
         }
-        grid.TiltGrid(Cardinal.North);
+
+        Dictionary<string, long> memo = new Dictionary<string, long>();
+        long breakiterat = -1;
+        long spincycles = 1000000000;
+        long cyclestart = 0;
+
+        for (long iter = 1; iter < spincycles && iter != breakiterat; iter++)
+        {
+            grid.swapcount = 0;
+            grid.TiltGrid(Cardinal.North);
+            grid.TiltGrid(Cardinal.West);
+            grid.TiltGrid(Cardinal.South);
+            grid.TiltGrid(Cardinal.East);
+            if (grid.swapcount == 0)
+            {
+                break;
+            }
+
+            if (breakiterat < 0)
+            {
+                string gridAsString = grid.ToString();
+
+                if (memo.TryGetValue(gridAsString, out cyclestart))
+                {
+                    long cyclelength = iter - cyclestart;
+                    long breakiteratposition = ((spincycles - cyclestart) % cyclelength);
+                    breakiterat = cyclestart + cyclelength + breakiteratposition;
+                }
+                else
+                {
+                    memo.Add(gridAsString, iter);
+                }
+            }
+        }
 
         long totalweight = 0;
 
