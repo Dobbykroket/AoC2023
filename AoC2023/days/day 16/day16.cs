@@ -1,4 +1,5 @@
-﻿using AoC2023.tools;
+﻿using System.Text;
+using AoC2023.tools;
 
 namespace AoC2023.days.day_16;
 
@@ -150,7 +151,6 @@ public class Day16 : Day
     {
         this.Directory = "day 16";
     }
-
     private void RunLight(Coordinate coordinate, Cardinal cardinal, Grid grid)
     {
         GridSpace? space = grid.getSpace(coordinate);
@@ -241,7 +241,7 @@ public class Day16 : Day
         }
     }
         
-    static List<(Coordinate, Cardinal)> alreadyRan = new List<(Coordinate, Cardinal)>();
+    private static List<(Coordinate, Cardinal)> alreadyRan = new List<(Coordinate, Cardinal)>();
     private static Queue<(Coordinate, Cardinal)> RunLightQueue = new Queue<(Coordinate, Cardinal)>();
 
     public override void Run()
@@ -261,29 +261,60 @@ public class Day16 : Day
             grid.grid.Add(gridLine.ToArray());
             initY++;
         }
-        
-        RunLightQueue.Enqueue((new Coordinate(0,0), Cardinal.East));
 
-        while (RunLightQueue.Count > 0)
+        Queue<(Coordinate, Cardinal)> stillToRun = new Queue<(Coordinate, Cardinal)>();
+
+        for (int x = 0; x < grid.grid[0].Length; x++)
         {
-            (Coordinate coordinate, Cardinal cardinal) = RunLightQueue.Dequeue();
-            RunLight(coordinate, cardinal, grid);
+            stillToRun.Enqueue((new Coordinate(x, 0), Cardinal.South));
+            stillToRun.Enqueue((new Coordinate(x, grid.grid.Count - 1), Cardinal.North));
         }
-
-        long sum = 0;
 
         for (int y = 0; y < grid.grid.Count; y++)
         {
-            for (int x = 0; x < grid.grid[0].Length; x++)
+            stillToRun.Enqueue((new Coordinate(0, y), Cardinal.East));
+            stillToRun.Enqueue((new Coordinate(grid.grid[y].Length - 1, y), Cardinal.West));
+        }
+
+        long highestsum = -1;
+
+        while (stillToRun.Count > 0)
+        {
+            Console.WriteLine("{0} still to go", stillToRun.Count);
+            RunLightQueue.Enqueue(stillToRun.Dequeue());
+
+            while (RunLightQueue.Count > 0)
             {
-                GridSpace? space = grid.getSpace(new Coordinate(x, y));
-                if (space is not null && space.energized)
+                (Coordinate coordinate, Cardinal cardinal) = RunLightQueue.Dequeue();
+                RunLight(coordinate, cardinal, grid);
+            }
+            
+            alreadyRan.Clear();
+            
+            long sum = 0;
+
+            for (int y = 0; y < grid.grid.Count; y++)
+            {
+                for (int x = 0; x < grid.grid[0].Length; x++)
                 {
-                    sum++;
+                    GridSpace? space = grid.getSpace(new Coordinate(x, y));
+                    if (space is not null && space.energized)
+                    {
+                        if (space.energized)
+                        {
+                            sum++;
+                            space.energized = false;
+                        }
+                    }
                 }
+            }
+
+            if (sum > highestsum)
+            {
+                highestsum = sum;
             }
         }
         
-        Console.WriteLine(sum);
+        Console.WriteLine(highestsum);
     }
 }
