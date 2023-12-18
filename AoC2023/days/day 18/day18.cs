@@ -7,10 +7,10 @@ public class Day18: Day
     
     private struct Coordinate
     {
-        public readonly int x;
-        public readonly int y;
+        public readonly long x;
+        public readonly long y;
 
-        public Coordinate(int x, int y)
+        public Coordinate(long x, long y)
         {
             this.x = x;
             this.y = y;
@@ -30,19 +30,20 @@ public class Day18: Day
         while ((line = data.ReadLine()) != null)
         {
             string[] split = line.Split(" ");
-            switch (split[0])
+            long distance = int.Parse(split[2][2..^2], System.Globalization.NumberStyles.HexNumber);
+            switch (split[2][^2])
             {
-                case "U":
-                    CurrentCoordinate = new Coordinate(CurrentCoordinate.x, CurrentCoordinate.y + int.Parse(split[1]));
+                case '3': //U
+                    CurrentCoordinate = new Coordinate(CurrentCoordinate.x, CurrentCoordinate.y + distance);
                     break;
-                case "D":
-                    CurrentCoordinate = new Coordinate(CurrentCoordinate.x, CurrentCoordinate.y - int.Parse(split[1]));
+                case '1': //D
+                    CurrentCoordinate = new Coordinate(CurrentCoordinate.x, CurrentCoordinate.y - distance);
                     break;
-                case "L":
-                    CurrentCoordinate = new Coordinate(CurrentCoordinate.x - int.Parse(split[1]), CurrentCoordinate.y);
+                case '2': //L
+                    CurrentCoordinate = new Coordinate(CurrentCoordinate.x - distance, CurrentCoordinate.y);
                     break;
-                case "R":
-                    CurrentCoordinate = new Coordinate(CurrentCoordinate.x + int.Parse(split[1]), CurrentCoordinate.y);
+                case '0': //R
+                    CurrentCoordinate = new Coordinate(CurrentCoordinate.x + distance, CurrentCoordinate.y);
                     break;
             }
             PolygonPoints.Add(CurrentCoordinate);
