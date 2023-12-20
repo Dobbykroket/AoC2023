@@ -59,7 +59,7 @@ public class Day20: Day
 
     private class Conjunction : Module
     {
-        private Dictionary<string, Pulse> OriginStatus = new Dictionary<string, Pulse>();
+        public Dictionary<string, Pulse> OriginStatus = new Dictionary<string, Pulse>();
 
         public Conjunction(string name) : base(name) { }
 
@@ -106,7 +106,13 @@ public class Day20: Day
     {
         public ReceiveOnly(string name) : base(name) { }
 
-        public override void ReceivePulse(Module _, Pulse __) { }
+        public override void ReceivePulse(Module _, Pulse pulse)
+        {
+            if (name.Equals("rx") && pulse.Equals(Pulse.Low))
+            {
+                rxReceived = true;
+            }
+        }
     }
 
     private static Queue<(Module origin, Module destination, Pulse)> PulseQueue = new Queue<(Module, Module, Pulse)>();
@@ -115,6 +121,7 @@ public class Day20: Day
     {
         this.Directory = "day 20";
     }
+    static bool rxReceived = false;
     public override void Run()
     {
         Dictionary<string, Module> Modules = new Dictionary<string, Module>();
@@ -144,6 +151,9 @@ public class Day20: Day
             Destinations.Add((newModule.name, input[1]));
         }
 
+        Conjunction KeyConjunction = new Conjunction("");
+        Dictionary<string, int> KeyConjuctionOriginsHighInterval = new Dictionary<string, int>();
+
         foreach ((string name, string dests) vals in Destinations)
         {
             Module module;
@@ -163,6 +173,10 @@ public class Day20: Day
                 else
                 {
                     module.AddDestination(new ReceiveOnly(dest));
+                    if (dest.Equals("rx"))
+                    {
+                        KeyConjunction = (Conjunction)module;
+                    }
                 }
             }
         }
@@ -170,17 +184,20 @@ public class Day20: Day
         Button button = new Button("button");
         button.AddDestination(Modules["broadcaster"]);
 
-        long highpulses = 0;
-        long lowpulses = 0;
+    //    long highpulses = 0;
+    //    long lowpulses = 0;
+        int buttonpresses = 0;
 
-        for (int i = 0; i < 1000; i++)
+        while(KeyConjunction.OriginStatus.Count != KeyConjuctionOriginsHighInterval.Count)
         {
             button.Press();
+            buttonpresses++;
 
             while (PulseQueue.Count > 0)
             {
                 (Module origin, Module destination, Pulse pulse) = PulseQueue.Dequeue();
                 destination.ReceivePulse(origin, pulse);
+                /*
                 if (pulse == Pulse.High)
                 {
                     highpulses++;
@@ -188,12 +205,26 @@ public class Day20: Day
                 else
                 {
                     lowpulses++;
+                }*/
+
+                if (destination.Equals(KeyConjunction) && pulse == Pulse.High)
+                {
+                    if (!KeyConjuctionOriginsHighInterval.ContainsKey(origin.name))
+                    {
+                        KeyConjuctionOriginsHighInterval.Add(origin.name, buttonpresses);
+                    }
                 }
             }
         }
+        
+        Console.WriteLine(Utils.LCM(KeyConjuctionOriginsHighInterval
+            .Values
+            .ToArray()
+        ));
 
     //    Console.WriteLine(highpulses);
     //    Console.WriteLine(lowpulses);
-        Console.WriteLine(highpulses * lowpulses);
+    //    Console.WriteLine(highpulses * lowpulses);
+        Console.WriteLine(buttonpresses);
     }
 }
